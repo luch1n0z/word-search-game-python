@@ -2,350 +2,356 @@ from random import randint
 import time
 import pygame
 
-def stampa_griglia(griglia):
-    separatore = '+--+--+--+--+--+--+--+--+--+--+'
-    barra = '|' 
+def print_grid(grid):
+    separator = '+--+--+--+--+--+--+--+--+--+--+'
+    bar = '|'
     for sep in range(10):
-        print(separatore)
-        for bar in range(10):
-            print(barra,griglia[sep][bar],end='')
-        print(barra)
-        print(separatore)
+        print(separator)
+        for col in range(10):
+            print(bar, grid[sep][col], end='')
+        print(bar)
+        print(separator)
 
-def generatore_griglia(griglia):#crea la griglia 
-    separatore = '+--+--+--+--+--+--+--+--+--+--+'
-    barra = '|'
-    lettere=['a','b','c','d','e','f','g','h','i','l','m','n','o','p','q','r','s','t','u','v','z']
+def generate_grid(grid):  # create the grid
+    separator = '+--+--+--+--+--+--+--+--+--+--+'
+    bar = '|'
+    letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'z']
     for sep in range(10):
-        print(separatore)
-        for bar in range(10):
-            lettera=lettere[randint(0 , len(lettere) - 1 )]
-            griglia[sep][bar] = lettera
-            print(barra,griglia[sep][bar],end='')
-        print(barra)
-        print(separatore)
-    return griglia
+        print(separator)
+        for col in range(10):
+            letter = letters[randint(0, len(letters) - 1)]
+            grid[sep][col] = letter
+            print(bar, grid[sep][col], end='')
+        print(bar)
+        print(separator)
+    return grid
 
-def incrementa_punteggio():
-    global punteggio_totale
-    punteggio_totale += 1
-    print('Punteggio: ',punteggio_totale)
+def increment_score():
+    global total_score
+    total_score += 1
+    print('Score: ', total_score)
 
-def calcolo_lunghezza_righe(griglia):
-    for i in griglia:
-        lunghezza_righe = len(i)
-    return lunghezza_righe
+def calculate_row_length(grid):
+    for row in grid:
+        row_length = len(row)
+    return row_length
 
-def generatore_griglia_con_none(griglia):
+def generate_grid_with_none(grid):
     for i in range(10):
-        righe = [None] * 10
-        griglia.append(righe)
+        rows = [None] * 10
+        grid.append(rows)
 
-def indice_ultimo_carattere(parola,lunghezza_parola):
-    j=1
-    for i in parola:
-        if j == lunghezza_parola:
+def last_character_index(word, word_length):
+    j = 1
+    for i in word:
+        if j == word_length:
             return j
-        j+=1
+        j += 1
 
-def controllo_parola_in_colonne(griglia,parola,suono_vittoria):
-    #CONTROLLO COLONNE
-    for righe in range(10):
-        concatenazione=''
-        for colonne in  range(10):
-            concatenazione += griglia[colonne][righe]
+def check_word_in_columns(grid, word, victory_sound):
+    # CHECK COLUMNS
+    for rows in range(10):
+        concatenation = ''
+        for cols in range(10):
+            concatenation += grid[cols][rows]
 
+        if word in concatenation:
+            start_row = concatenation.index(word)
+            victory_sound.play()
+            return [True, start_row]
 
-        if parola in concatenazione:
-            start_row = concatenazione.index(parola)
-            suono_vittoria.play()
-            return [True,start_row]
-        
-    return [False,None]
+    return [False, None]
 
-def evidenziazione_colonne(griglia,start_row,lunghezza_parola_trovata,lunghezza_colonne,sottofondo,suono_fine_tempo,tempo_generale_complessivo):
-    for offset in range(lunghezza_parola_trovata):
-        griglia[start_row+offset][lunghezza_colonne - lunghezza_parola_trovata - start_row] = '*'
-    stampa_griglia(griglia)
-    tempo = time.time()
-    tempo_impiegato = tempo - tempo_generale_complessivo
-    print('Il tempo impiegato e: ',tempo_impiegato)
-    if tempo_impiegato > 10:
-        sottofondo.stop()
-        suono_fine_tempo.play()
+def highlight_columns(grid, start_row, found_word_length, column_length, background_sound, time_up_sound, overall_general_time):
+    for offset in range(found_word_length):
+        grid[start_row + offset][column_length - found_word_length - start_row] = '*'
+    print_grid(grid)
+    elapsed_time = time.time()
+    time_spent = elapsed_time - overall_general_time
+    print('Elapsed time: ', time_spent)
+    if time_spent > 10:
+        background_sound.stop()
+        time_up_sound.play()
         time.sleep(3)
         return True
-    
-    return False
-    
-def controllo_parola_in_righe(griglia,parola,suono_vittoria):
-    #CONTROLLO RIGHE 
-    for righe in griglia:
-        st = ''.join(righe)
-        if parola in st:
-            i_r = griglia.index(righe)
-            suono_vittoria.play()
-            return [True,i_r,st]
-        
-    return [False,None,None]
 
-def evidenziazione_righe(griglia,parola,suono_vittoria,tempo_generale_complessivo):
-    
-    valori_di_ritorno = controllo_parola_in_righe(griglia,parola,suono_vittoria)
-    if valori_di_ritorno[0]:
-        i_riga = valori_di_ritorno[1]
-        st = valori_di_ritorno[2]
-        suono_vittoria.play()
-        start_col = st.index(parola_trovata)
-        
-        for righe in griglia:
-            indice_riga = griglia.index(righe)
-            for offset in range(lunghezza_parola_trovata):
-                if indice_riga == i_riga: 
-                    griglia[indice_riga][start_col + offset] = '*'  
-                else:                 
+    return False
+
+def check_word_in_rows(grid, word, victory_sound):
+    # CHECK ROWS
+    for row in grid:
+        concatenated_row = ''.join(row)
+        if word in concatenated_row:
+            row_index = grid.index(row)
+            victory_sound.play()
+            return [True, row_index, concatenated_row]
+
+    return [False, None, None]
+
+def highlight_rows(grid, word, victory_sound, overall_general_time):
+    return_values = check_word_in_rows(grid, word, victory_sound)
+    if return_values[0]:
+        row_index = return_values[1]
+        concatenated_row = return_values[2]
+        victory_sound.play()
+        start_col = concatenated_row.index(found_word)
+
+        for row in grid:
+            row_index = grid.index(row)
+            for offset in range(found_word_length):
+                if row_index == row_index:
+                    grid[row_index][start_col + offset] = '*'
+                else:
                     break
-        stampa_griglia(griglia)
-        tempo = time.time()
-        tempo_impiegato = tempo - tempo_generale_complessivo
-        print('Il tempo impiegato e: ',tempo_impiegato)
-        if tempo_impiegato > 10:
-            sottofondo.stop()
-            suono_fine_tempo.play()
+        print_grid(grid)
+        elapsed_time = time.time()
+        time_spent = elapsed_time - overall_general_time
+        print('Elapsed time: ', time_spent)
+        if time_spent > 10:
+            background_sound.stop()
+            time_up_sound.play()
             time.sleep(3)
             return True
-        
+
     return False
 
-def controllo_parole_in_diagonale_principale(griglia,parola):
-    diag_principale = ''
-    for righe in range(10):
-        for colonne in range(10):
-            if righe == colonne:
-                diag_principale += griglia[righe][colonne]
-            
-    if parola in diag_principale:
-        suono_vittoria.play()
-        return [True,diag_principale]
-    
-    return [False,None]
+def check_words_in_main_diagonal(grid, word):
+    main_diag = ''
+    for row in range(10):
+        for col in range(10):
+            if row == col:
+                main_diag += grid[row][col]
 
-def evidenziazione_diagonale_principale(griglia,parola,tempo_generale_complessivo):
-    valori_ritorno_controllo_diagonale_principale = controllo_parole_in_diagonale_principale(griglia,parola)
-    
-    start_row = valori_ritorno_controllo_diagonale_principale[1].index(parola_trovata)
-    start_col = valori_ritorno_controllo_diagonale_principale[1].index(parola_trovata)
-    
-    for offset in range(lunghezza_parola_trovata):
-        griglia[start_row + offset][start_col + offset] = '*'
+    if word in main_diag:
+        victory_sound.play()
+        return [True, main_diag]
 
-    stampa_griglia(griglia)
-    tempo = time.time()
-    tempo_impiegato = tempo - tempo_generale_complessivo
-    print('Il tempo impiegato e: ',tempo_impiegato)
-    if tempo_impiegato > 10:
-        sottofondo.stop()
-        suono_fine_tempo.play()
+    return [False, None]
+
+def highlight_main_diagonal(grid, word, overall_general_time):
+    return_values_check_main_diagonal = check_words_in_main_diagonal(grid, word)
+
+    start_row = return_values_check_main_diagonal[1].index(word)
+    start_col = return_values_check_main_diagonal[1].index(word)
+
+    for offset in range(found_word_length):
+        grid[start_row + offset][start_col + offset] = '*'
+
+    print_grid(grid)
+    elapsed_time = time.time()
+    time_spent = elapsed_time - overall_general_time
+    print('Elapsed time: ', time_spent)
+    if time_spent > 10:
+        background_sound.stop()
+        time_up_sound.play()
         time.sleep(3)
         return True
-    
+
     return False
 
-def controllo_parole_in_diagonale_secondaria(griglia,parola):
-#CONTROLLO DIAGONALE SECONDARIA
-    lunghezza_righe = calcolo_lunghezza_righe(griglia)
-    diag_secondaria=''
+def check_words_in_secondary_diagonal(grid, word):
+    # CHECK SECONDARY DIAGONAL
+    row_length = calculate_row_length(grid)
+    secondary_diag = ''
     for d in range(10):
-        diag_secondaria += griglia[d][lunghezza_righe-d-1]
-    if parola in diag_secondaria:
-        return [True,diag_secondaria]
-    
-    return [False,None]
-    
-def evidenziazione_diagonale_secondaria(griglia,parola,tempo_generale_complessivo):
-    valori_ritorno_controllo_parole_in_diagonale_secondaria = controllo_parole_in_diagonale_secondaria(griglia,parola)
-    # Calcolo dell'indice iniziale della riga e della colonna
-    start_row = valori_ritorno_controllo_parole_in_diagonale_secondaria[1].index(parola_trovata)
-    start_col = 9 - valori_ritorno_controllo_parole_in_diagonale_secondaria[1].index(parola_trovata) 
-    for i in range(lunghezza_parola_trovata):
-        griglia[start_row + i][start_col - i] = '*'
-    # Stampo la griglia modificata
-    stampa_griglia(griglia)
-    tempo = time.time()
-    tempo_impiegato = tempo - tempo_generale_complessivo
-    print('Il tempo impiegato e: ',tempo_impiegato)
-    if tempo_impiegato > 10:
-        sottofondo.stop()
-        suono_fine_tempo.play()
+        secondary_diag += grid[d][row_length - d - 1]
+
+    if word in secondary_diag:
+        return [True, secondary_diag]
+
+    return [False, None]
+
+def highlight_secondary_diagonal(grid, word, overall_general_time):
+    return_values_check_secondary_diagonal = check_words_in_secondary_diagonal(grid, word)
+
+    start_row = return_values_check_secondary_diagonal[1].index(word)
+    start_col = 9 - return_values_check_secondary_diagonal[1].index(word)
+    for i in range(found_word_length):
+        grid[start_row + i][start_col - i] = '*'
+
+    print_grid(grid)
+    elapsed_time = time.time()
+    time_spent = elapsed_time - overall_general_time
+    print('Elapsed time: ', time_spent)
+    if time_spent > 10:
+        background_sound.stop()
+        time_up_sound.play()
         time.sleep(3)
         return True
-    
+
     return False
 
-def controllo_parole_in_diagonali_a_destra_della_principale_da_in_alto_a_sx_ad_in_basso_a_dx(griglia,parola):
-    #CONTROLLO DIAGONALI (A DESTRA DELLA PRINCIPALE), DA IN ALTO SINISTRA AD IN BASSO A DESTRA
+def check_words_in_diagonals_right_of_main_from_top_left_to_bottom_right(grid, word):
+    # CHECK DIAGONALS (RIGHT OF MAIN), FROM TOP LEFT TO BOTTOM RIGHT
     for offset in range(1, 10):
-        conc_diagonale_generale_da_sx_a_dx = ''
-        for righe in range(10 - offset):
-            colonne = righe + offset
-            conc_diagonale_generale_da_sx_a_dx += griglia[righe][colonne]
+        general_diagonal_concatenation_from_left_to_right = ''
+        for row in range(10 - offset):
+            col = row + offset
+            general_diagonal_concatenation_from_left_to_right += grid[row][col]
 
-            if parola in conc_diagonale_generale_da_sx_a_dx:
-                return [True,conc_diagonale_generale_da_sx_a_dx]
-    return [False,None]
+            if word in general_diagonal_concatenation_from_left_to_right:
+                return [True, general_diagonal_concatenation_from_left_to_right]
 
+    return [False, None]
 
-            
-#WORK IN PROGRESS     
-def evidenziazione_diagonali_a_destra_della_principale_da_in_alto_a_sx_ad_in_basso_a_dx(griglia,tempo_generale_complessivo,parola,lunghezza_parola):
-    valori_ritorno_controllo_parole_in_diagonali_a_destra_della_principale_da_in_alto_a_sx_ad_in_basso_a_dx = controllo_parole_in_diagonali_a_destra_della_principale_da_in_alto_a_sx_ad_in_basso_a_dx(griglia,parola)
-    conc_diagonale_generale_da_sx_a_dx = valori_ritorno_controllo_parole_in_diagonali_a_destra_della_principale_da_in_alto_a_sx_ad_in_basso_a_dx[1]
-    ultimo_indice = indice_ultimo_carattere(parola,lunghezza_parola)
-    indici = []
-    start_row = conc_diagonale_generale_da_sx_a_dx.index(parola)
-    end_row = conc_diagonale_generale_da_sx_a_dx.rindex(parola)
-    print('ultimo indice: ' ,ultimo_indice)
-    #for i in range(start_row, ultimo_indice + 1): #offset: 1 start_row: 1 end_row + 1: 4
-       #colonna = offset + start_row #colonna: 1 + 1 = 2
-      #  print('i: ',i,'start_row: ',start_row,'ultimo_indice: ',ultimo_indice)
-        #griglia[offset][colonna - start_row] = '*'  # Aggiunta dell'asterisco in base all'offset #griglia[1][2-1] = griglia[1][1]
-     #   griglia[i][i*2] = '*'
-    start_row = conc_diagonale_generale_da_sx_a_dx.index(parola) + 1
-    end_row = conc_diagonale_generale_da_sx_a_dx.rindex(parola)
+# WORK IN PROGRESS
+def highlight_diagonals_right_of_main_from_top_left_to_bottom_right(grid, overall_general_time, word, word_length):
+    return_values_check_diagonals_right_of_main_from_top_left_to_bottom_right = \
+        check_words_in_diagonals_right_of_main_from_top_left_to_bottom_right(grid, word)
+    general_diagonal_concatenation_from_left_to_right = \
+        return_values_check_diagonals_right_of_main_from_top_left_to_bottom_right[1]
+    last_index = last_character_index(word, word_length)
+    indices = []
+    start_row = general_diagonal_concatenation_from_left_to_right.index(word)
+
+    start_row = general_diagonal_concatenation_from_left_to_right.index(word) + 1
+    end_row = general_diagonal_concatenation_from_left_to_right.rindex(word)
     for i in range(start_row, end_row + 1):
         if i >= start_row + 1 and i <= end_row - 1:
-            griglia[i][i + 1] = '*'
+            grid[i][i + 1] = '*'
 
-
-    stampa_griglia(griglia)
-    tempo = time.time()
-    tempo_impiegato = tempo - tempo_generale_complessivo
-    print('Il tempo impiegato e: ',tempo_impiegato)
-    if tempo_impiegato > 10:
+    print_grid(grid)
+    elapsed_time = time.time()
+    time_spent = elapsed_time - overall_general_time
+    print('Elapsed time: ', time_spent)
+    if time_spent > 10:
+        background_sound.stop()
+        time_up_sound.play()
         time.sleep(3)
         return True
 
-def controllo_diagonali_a_sinistra_della_principale(griglia):
-    for offset in range(1,10):
-        conc_diagonale_generale_da_sx_a_dx_2 = ''
-        for righe in range(10-offset):
-            colonne = righe + offset
-            conc_diagonale_generale_da_sx_a_dx_2 += griglia[colonne][righe]
+    return False
 
-            if parola_trovata in conc_diagonale_generale_da_sx_a_dx_2:
-                return [True]
-            
-    return [False]
+def check_diagonals_left_of_main(grid, word):
+    for offset in range(1, 10):
+        general_diagonal_concatenation_from_left_to_right_2 = ''
+        for row in range(10 - offset):
+            col = row + offset
+            general_diagonal_concatenation_from_left_to_right_2 += grid[col][row]
 
-#WORK IN PROGRESS
-def evidenziazione_diagonali_a_sinistra_della_principale(griglia,tempo_generale_complessivo,parola):
-    valori_ritorno_controllo_diagonali_a_sinistra_della_principale = controllo_diagonali_a_sinistra_della_principale(griglia)
-    diagonale_a_sinistra_della_principale = valori_ritorno_controllo_diagonali_a_sinistra_della_principale[1]
-    start_row = diagonale_a_sinistra_della_principale.index(parola)
-    #print('diagonale a sinistra della principale: ',diagonale_a_sinistra_della_principale)
-    #print('start_row: ',start_row)
-    #for i in range(start_row,lunghezza_parola_trovata + start_row ):
-     #   colonne = start_row + 1
-      #  griglia[i + 1][colonne] = '*'
+            if word in general_diagonal_concatenation_from_left_to_right_2:
+                start_row = general_diagonal_concatenation_from_left_to_right_2.index(word)
+                return [True, general_diagonal_concatenation_from_left_to_right_2, start_row]
 
-    stampa_griglia(griglia)
-    tempo = time.time()
-    tempo_impiegato = tempo - tempo_generale_complessivo
-    print('Il tempo impiegato e: ',tempo_impiegato)
-    if tempo_impiegato > 10:
+    return [False, None, None]
+
+# WORK IN PROGRESS
+def highlight_diagonals_left_of_main(grid, overall_general_time, word, word_length):
+    return_values_check_diagonals_left_of_main = check_diagonals_left_of_main(grid, word)
+    diagonal_concatenation_from_left_to_right_2 = return_values_check_diagonals_left_of_main[1]
+    start_row = return_values_check_diagonals_left_of_main[2] - 1
+
+    print('start_row:', start_row)
+    if check_diagonals_left_of_main(grid, word):
+        for i in range(1, word_length + start_row):
+            for j in range(start_row, word_length + start_row):
+                if j == i + 1:
+                    grid[j][i] = '*'
+                    print('i: ', i, 'j', j)
+                if start_row == 2:
+                    if j == i + 2:
+                        print('Hello')
+                        grid[i][j] = '*'
+
+    print_grid(grid)
+    elapsed_time = time.time()
+    time_spent = elapsed_time - overall_general_time
+    print('Elapsed time: ', time_spent)
+    if time_spent > 10:
         time.sleep(3)
         return True
-    
-punteggio_totale = 0
-griglia = []
-lunghezza_colonne = 10
-iterazione = 0
+
+total_score = 0
+grid = []
+column_length = 10
+iteration = 0
 pygame.init()
-sottofondo=pygame.mixer.Sound('C:\\Users\\lucag\\Downloads\\file_example_WAV_1MG.wav')
-suono_fine_tempo = pygame.mixer.Sound('C:\\Users\\lucag\\Downloads\\mixkit-retro-arcade-lose-2027.wav')
-suono_vittoria = pygame.mixer.Sound('C:\\Users\\lucag\\Downloads\\short-success-sound-glockenspiel-treasure-video-game-6346 (1).mp3')
-sottofondo.play(loops=-1)
+background_sound = pygame.mixer.Sound('C:\\Users\\lucag\\Downloads\\file_example_WAV_1MG.wav')
+time_up_sound = pygame.mixer.Sound('C:\\Users\\lucag\\Downloads\\mixkit-retro-arcade-lose-2027.wav')
+victory_sound = pygame.mixer.Sound('C:\\Users\\lucag\\Downloads\\short-success-sound-glockenspiel-treasure-video-game-6346 (1).mp3')
+background_sound.play(loops=-1)
 
-generatore_griglia_con_none(griglia)
-griglia_piena = generatore_griglia(griglia)#modifichiamo la griglia precedente con lettere casuali
-tempo_generale_complessivo = time.time()
+generate_grid_with_none(grid)
+full_grid = generate_grid(grid)  # modify the previous grid with random letters
+overall_general_time = time.time()
 
 while True:
-    scelta = int(input('Inserisci 0 se vuoi giocare, 1 se vuoi uscire.\n'))
-    
-    if scelta == 0:
-        tempo_generale = time.time()
-        parola_trovata = input('Inserisci la parola che hai trovato\n').lower()
-                
-        lunghezza_parola_trovata = len(parola_trovata)
-    
-        risultato_controllo_parola_trovata_in_colonne = controllo_parola_in_colonne(griglia_piena,parola_trovata,suono_vittoria)
-        risultato_controllo_parola_trovata_in_righe = controllo_parola_in_righe(griglia_piena,parola_trovata,suono_vittoria)
-        risultato_controllo_parola_trovata_in_diagonale_principale = controllo_parole_in_diagonale_principale(griglia,parola_trovata)
-        risultato_controllo_parola_trovata_in_diagonale_secondaria = controllo_parole_in_diagonale_secondaria(griglia,parola_trovata)
-        risultato_controllo_parola_trovata_in_diagonali_a_destra_della_principale_da_in_alto_a_sx_ad_in_basso_a_dx = controllo_parole_in_diagonali_a_destra_della_principale_da_in_alto_a_sx_ad_in_basso_a_dx(griglia,parola_trovata)
-        risultato_controllo_parola_trovata_in_diagonali_a_sinistra_della_principale = controllo_diagonali_a_sinistra_della_principale(griglia)
-        valori_ritorno_evidenziazione_righe = evidenziazione_righe(griglia,parola_trovata,suono_vittoria,tempo_generale)
+    choice = int(input('Enter 0 to play, 1 to exit.\n'))
 
-        if risultato_controllo_parola_trovata_in_colonne[0]:
-            print('Parola trovata in una colonna!')
-            incrementa_punteggio()
-            
-            if evidenziazione_colonne(griglia_piena,risultato_controllo_parola_trovata_in_colonne[1],lunghezza_parola_trovata,lunghezza_colonne,sottofondo,suono_fine_tempo,tempo_generale):
-                print('Tempo esaurito.Uscita dal gioco...')
+    if choice == 0:
+        overall_time = time.time()
+        found_word = input('Enter the word you found\n').lower()
+
+        found_word_length = len(found_word)
+
+        column_word_check_result = check_word_in_columns(full_grid, found_word, victory_sound)
+        row_word_check_result = check_word_in_rows(full_grid, found_word, victory_sound)
+        main_diagonal_word_check_result = check_words_in_main_diagonal(grid, found_word)
+        secondary_diagonal_word_check_result = check_words_in_secondary_diagonal(grid, found_word)
+        right_diagonals_word_check_result = check_words_in_diagonals_right_of_main_from_top_left_to_bottom_right(
+            grid, found_word)
+        left_diagonals_word_check_result = check_diagonals_left_of_main(grid, found_word)
+        row_highlight_values = highlight_rows(full_grid, found_word, victory_sound, overall_time)
+
+        if column_word_check_result[0]:
+            print('Word found in a column!')
+            increment_score()
+
+            if highlight_columns(full_grid, column_word_check_result[1], found_word_length, column_length,
+                                 background_sound, time_up_sound, overall_general_time):
+                print('Time is up. Exiting the game...')
                 break
 
-        elif risultato_controllo_parola_trovata_in_righe[0]:
-            print('Parola trovata in una riga!')
-            incrementa_punteggio()
+        elif row_word_check_result[0]:
+            print('Word found in a row!')
+            increment_score()
 
-            if evidenziazione_righe(griglia_piena,parola_trovata,suono_vittoria,tempo_generale):
-                print('Tempo esaurito. Uscita dal gioco...')
-                break
-        
-        elif risultato_controllo_parola_trovata_in_diagonale_principale[0]:
-            print('Parola trovata in diagonale principale!')
-            incrementa_punteggio()
-
-            if evidenziazione_diagonale_principale(griglia,parola_trovata,tempo_generale):
-                print('Tempo esaurito. Uscita dal gioco...')
+            if row_highlight_values:
+                print('Time is up. Exiting the game...')
                 break
 
-        elif risultato_controllo_parola_trovata_in_diagonale_secondaria[0]:
-            print('Parola trovata in diagonale secondaria!')
-            incrementa_punteggio()
+        elif main_diagonal_word_check_result[0]:
+            print('Word found in the main diagonal!')
+            increment_score()
 
-            if evidenziazione_diagonale_secondaria(griglia,parola_trovata,tempo_generale):
-                print('Tempo esaurito. Uscita dal gioco...')
+            if highlight_main_diagonal(full_grid, found_word, overall_general_time):
+                print('Time is up. Exiting the game...')
                 break
 
-        elif risultato_controllo_parola_trovata_in_diagonali_a_destra_della_principale_da_in_alto_a_sx_ad_in_basso_a_dx[0]:
-            print('Parola trovata nelle diagonali (a sinistra della principale) da in alto a sinistra ad in basso a destra!')
-            incrementa_punteggio()
+        elif secondary_diagonal_word_check_result[0]:
+            print('Word found in the secondary diagonal!')
+            increment_score()
 
-            if evidenziazione_diagonali_a_destra_della_principale_da_in_alto_a_sx_ad_in_basso_a_dx(griglia,tempo_generale,parola_trovata,lunghezza_parola_trovata):
-                print('Tempo esaurito. Uscita dal gioco...')
+            if highlight_secondary_diagonal(full_grid, found_word, overall_general_time):
+                print('Time is up. Exiting the game...')
                 break
 
-        elif risultato_controllo_parola_trovata_in_diagonali_a_sinistra_della_principale[0]:
-            print('Parola trovata nelle diaagonali a sinistra dellaa diagonale principale!')
-            incrementa_punteggio()
+        elif right_diagonals_word_check_result[0]:
+            print('Word found in diagonals (right of main) from top left to bottom right!')
+            increment_score()
 
-            if evidenziazione_diagonali_a_sinistra_della_principale(griglia,tempo_generale,parola_trovata):
-                print('Tempo esaurito. Uscita dal gioco...')
+            if highlight_diagonals_right_of_main_from_top_left_to_bottom_right(full_grid, overall_general_time,
+                                                                             found_word, found_word_length):
+                print('Time is up. Exiting the game...')
+                break
+
+        elif left_diagonals_word_check_result[0]:
+            print('Word found in diagonals left of the main diagonal!')
+            increment_score()
+
+            if highlight_diagonals_left_of_main(full_grid, overall_general_time, found_word, found_word_length):
+                print('Time is up. Exiting the game...')
                 break
 
         else:
-            print('Parola non presente nella griglia, riprova!')
-            suono_fine_tempo.play()
-            
+            print('Word not present in the grid, try again!')
+            time_up_sound.play()
 
-    elif scelta == 1: 
-        print('Fine, punteggio totale: ',punteggio_totale)
+    elif choice == 1:
+        print('End, total score: ', total_score)
         break
 
     else:
-        suono_fine_tempo.play()
-        print('Inserisci 0 o 1')
-        
-    iterazione += 1
+        time_up_sound.play()
+        print('Enter 0 or 1')
+        iteration += 1
