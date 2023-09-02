@@ -225,7 +225,7 @@ def evidenziazione_diagonali_a_destra_della_principale_da_in_alto_a_sx_ad_in_bas
         time.sleep(3)
         return True
 
-def controllo_diagonali_a_sinistra_della_principale(griglia):
+def controllo_diagonali_a_sinistra_della_principale(griglia,parola):
     for offset in range(1,10):
         conc_diagonale_generale_da_sx_a_dx_2 = ''
         for righe in range(10-offset):
@@ -233,21 +233,34 @@ def controllo_diagonali_a_sinistra_della_principale(griglia):
             conc_diagonale_generale_da_sx_a_dx_2 += griglia[colonne][righe]
 
             if parola_trovata in conc_diagonale_generale_da_sx_a_dx_2:
-                return [True]
+                start_row = conc_diagonale_generale_da_sx_a_dx_2.index(parola)
+                return [True,conc_diagonale_generale_da_sx_a_dx_2,start_row]
             
-    return [False]
+    return [False,None,None]
 
 #WORK IN PROGRESS
-def evidenziazione_diagonali_a_sinistra_della_principale(griglia,tempo_generale_complessivo,parola):
-    valori_ritorno_controllo_diagonali_a_sinistra_della_principale = controllo_diagonali_a_sinistra_della_principale(griglia)
-    diagonale_a_sinistra_della_principale = valori_ritorno_controllo_diagonali_a_sinistra_della_principale[1]
-    start_row = diagonale_a_sinistra_della_principale.index(parola)
+def evidenziazione_diagonali_a_sinistra_della_principale(griglia,tempo_generale_complessivo,parola,lunghezza_parola):
+    valori_ritorno_controllo_diagonali_a_sinistra_della_principale = controllo_diagonali_a_sinistra_della_principale(griglia,parola)
+    diagonale_generale_da_sc_a_dx_2 = valori_ritorno_controllo_diagonali_a_sinistra_della_principale[1]
+    start_row = valori_ritorno_controllo_diagonali_a_sinistra_della_principale[2] - 1
+    #start_row = diagonale_a_sinistra_della_principale.index(parola)
     #print('diagonale a sinistra della principale: ',diagonale_a_sinistra_della_principale)
     #print('start_row: ',start_row)
     #for i in range(start_row,lunghezza_parola_trovata + start_row ):
      #   colonne = start_row + 1
       #  griglia[i + 1][colonne] = '*'
-
+    print('start_row:' ,start_row)
+    if controllo_diagonali_a_sinistra_della_principale(griglia,parola):
+        for i in range(1,lunghezza_parola+start_row):
+            for j in range(start_row,lunghezza_parola+start_row):
+                if j == i+1: 
+                    griglia[j][i] = '*'
+                    print('i: ',i,'j',j)
+                if start_row == 2:
+                    if j == i + 2:
+                        print('ciao')
+                        griglia[i][j] = '*'
+                
     stampa_griglia(griglia)
     tempo = time.time()
     tempo_impiegato = tempo - tempo_generale_complessivo
@@ -284,7 +297,7 @@ while True:
         risultato_controllo_parola_trovata_in_diagonale_principale = controllo_parole_in_diagonale_principale(griglia,parola_trovata)
         risultato_controllo_parola_trovata_in_diagonale_secondaria = controllo_parole_in_diagonale_secondaria(griglia,parola_trovata)
         risultato_controllo_parola_trovata_in_diagonali_a_destra_della_principale_da_in_alto_a_sx_ad_in_basso_a_dx = controllo_parole_in_diagonali_a_destra_della_principale_da_in_alto_a_sx_ad_in_basso_a_dx(griglia,parola_trovata)
-        risultato_controllo_parola_trovata_in_diagonali_a_sinistra_della_principale = controllo_diagonali_a_sinistra_della_principale(griglia)
+        risultato_controllo_parola_trovata_in_diagonali_a_sinistra_della_principale = controllo_diagonali_a_sinistra_della_principale(griglia,parola_trovata)
         valori_ritorno_evidenziazione_righe = evidenziazione_righe(griglia,parola_trovata,suono_vittoria,tempo_generale)
 
         if risultato_controllo_parola_trovata_in_colonne[0]:
@@ -320,7 +333,7 @@ while True:
                 break
 
         elif risultato_controllo_parola_trovata_in_diagonali_a_destra_della_principale_da_in_alto_a_sx_ad_in_basso_a_dx[0]:
-            print('Parola trovata nelle diagonali (a sinistra della principale) da in alto a sinistra ad in basso a destra!')
+            print('Parola trovata nelle diagonali (a destra della principale) da in alto a sinistra ad in basso a destra!')
             incrementa_punteggio()
 
             if evidenziazione_diagonali_a_destra_della_principale_da_in_alto_a_sx_ad_in_basso_a_dx(griglia,tempo_generale,parola_trovata,lunghezza_parola_trovata):
@@ -331,7 +344,7 @@ while True:
             print('Parola trovata nelle diaagonali a sinistra dellaa diagonale principale!')
             incrementa_punteggio()
 
-            if evidenziazione_diagonali_a_sinistra_della_principale(griglia,tempo_generale,parola_trovata):
+            if evidenziazione_diagonali_a_sinistra_della_principale(griglia,tempo_generale,parola_trovata,lunghezza_parola_trovata):
                 print('Tempo esaurito. Uscita dal gioco...')
                 break
 
